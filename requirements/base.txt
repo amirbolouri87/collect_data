@@ -1,0 +1,13 @@
+Django==5.2.7
+requests==2.32.5
+djangorestframework==3.16.1
+python-decouple==3.8
+djangorestframework-simplejwt==5.5.1
+django-cors-headers==4.9
+django-minio-storage==0.5.8
+gunicorn==23.0.0
+django-storages==1.14.6
+boto3==1.40.59
+httpx==0.28.1
+orjson==3.11.4
+psycopg2-binary==2.9.11
