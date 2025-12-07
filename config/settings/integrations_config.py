@@ -43,13 +43,6 @@ class SecurityConfig(BaseConfig):
     CORS_ALLOW_ALL_ORIGINS = config("CORS_ALLOW_ALL_ORIGINS", cast=bool, default=True)
 
 
-class S3StorageConfig(BaseConfig):
-    AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
-    AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
-    AWS_S3_ENDPOINT_URL = config("AWS_S3_ENDPOINT_URL")
-    STORAGE_BUCKET_NAME = config("STORAGE_BUCKET_NAME")
-
-
 class DataBaseConfig(BaseConfig):
     MAIN_DATABASE_ENGINE = config("MAIN_DATABASE_ENGINE")
     MAIN_DATABASE_NAME = config("MAIN_DATABASE_NAME")

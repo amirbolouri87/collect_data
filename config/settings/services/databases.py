@@ -9,6 +9,6 @@ DATABASES = {
         "PASSWORD": DataBaseConfig.MAIN_DATABASE_PASSWORD,
         "HOST": DataBaseConfig.MAIN_DATABASE_HOST,
         "PORT": DataBaseConfig.MAIN_DATABASE_PORT,
-        "OPTIONS": {"threaded": True},
+        # "OPTIONS": {"threaded": True},
     },
 }

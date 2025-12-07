@@ -7,7 +7,7 @@ workers = multiprocessing.cpu_count() * 2 + 1
 
 subprocess.run(["python", "manage.py", "migrate", "--no-input"], check=True)
 
-subprocess.run(["python", "manage.py", "collectstatic", "--no-input"], check=True)
+# subprocess.run(["python", "manage.py", "collectstatic", "--no-input"], check=True)
 
 if GunicornConfig.is_production() or GunicornConfig.is_staging():
     subprocess.run(

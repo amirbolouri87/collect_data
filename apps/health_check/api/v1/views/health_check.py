@@ -6,7 +6,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from config.settings.integrations_config import S3StorageConfig, PROJECT_NAME
+from config.settings.integrations_config import  PROJECT_NAME
 from django.conf import settings
 
 
@@ -16,22 +16,22 @@ class HealthCheckView(APIView):
     def get(self, request):
         checks = {
             "database": check_database(),
-            "storage": check_minio(),
+            # "storage": check_minio(),
             "sentry": check_sentry(),
             "prometheus": check_prometheus(),
         }
 
-        if S3StorageConfig.is_development() or S3StorageConfig.is_staging():
-            relevant = ["database", "storage"]
-        else:
-            relevant = list(checks.keys())
+        # if S3StorageConfig.is_development() or S3StorageConfig.is_staging():
+        #     relevant = ["database", "storage"]
+        # else:
+        relevant = list(checks.keys())
 
         is_healthy = all(checks[c] == "healthy" for c in relevant)
 
         return Response(
             {
                 "service": PROJECT_NAME,
-                "environment": S3StorageConfig.ENVIRONMENT,
+                # "environment": S3StorageConfig.ENVIRONMENT,
                 "status": "healthy" if is_healthy else "unhealthy",
                 "checks": checks,
             },
@@ -62,25 +62,25 @@ def check_sentry():
 _s3_client = None
 
 
-def check_minio():
-    global _s3_client
-    try:
-        if not _s3_client:
-            _s3_client = boto3.client(
-                "s3",
-                endpoint_url=S3StorageConfig.AWS_S3_ENDPOINT_URL,
-                aws_access_key_id=S3StorageConfig.AWS_ACCESS_KEY_ID,
-                aws_secret_access_key=S3StorageConfig.AWS_SECRET_ACCESS_KEY,
-            )
-        _s3_client.head_bucket(Bucket=S3StorageConfig.STORAGE_BUCKET_NAME)
-        return "healthy"
-    except EndpointConnectionError:
-        return "connection_failed"
-    except ClientError as e:
-        code = e.response.get("Error", {}).get("Code", "")
-        return "bucket_not_found" if code == "404" else "access_denied" if code == "403" else "unhealthy"
-    except Exception:
-        return "unhealthy"
+# def check_minio():
+#     global _s3_client
+#     try:
+#         if not _s3_client:
+#             _s3_client = boto3.client(
+#                 "s3",
+#                 endpoint_url=S3StorageConfig.AWS_S3_ENDPOINT_URL,
+#                 aws_access_key_id=S3StorageConfig.AWS_ACCESS_KEY_ID,
+#                 aws_secret_access_key=S3StorageConfig.AWS_SECRET_ACCESS_KEY,
+#             )
+#         _s3_client.head_bucket(Bucket=S3StorageConfig.STORAGE_BUCKET_NAME)
+#         return "healthy"
+#     except EndpointConnectionError:
+#         return "connection_failed"
+#     except ClientError as e:
+#         code = e.response.get("Error", {}).get("Code", "")
+#         return "bucket_not_found" if code == "404" else "access_denied" if code == "403" else "unhealthy"
+#     except Exception:
+#         return "unhealthy"
 
 
 def check_prometheus():
