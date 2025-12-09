@@ -1,0 +1,23 @@
+services:
+  external-wrapper:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ENVIRONMENT: ${ENVIRONMENT}
+        DOCKER_REPO_URL: ${DOCKER_REPO_URL}
+    image: "external_wrapper_${ENVIRONMENT:-production}:${DOCKER_TAG:-latest}"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ENVIRONMENT=${ENVIRONMENT}
+      - DJANGO_SETTINGS_MODULE=config.settings.environments.${ENVIRONMENT}
+    volumes:
+       - logs:${APP_LOG_PATH}
+       - ${APP_ENVIRONMENT_VARIABLES_PATH:-./.app_envs/development/.env}:/app/.app_envs/development/.env:ro
+    ports:
+          - "${APP_EXTERNAL_PORT}:${APP_INTERNAL_PORT}"
+    env_file:
+      - ${APP_ENVIRONMENT_VARIABLES_PATH}
+    entrypoint: ["python", "/app/entrypoint.py"]
+volumes:
+  logs:
