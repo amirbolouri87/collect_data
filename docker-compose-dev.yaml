@@ -13,7 +13,7 @@ services:
       - DJANGO_SETTINGS_MODULE=config.settings.environments.${ENVIRONMENT}
     volumes:
        - logs:${APP_LOG_PATH}
-       - ${APP_ENVIRONMENT_VARIABLES_PATH:-./.app_envs/development/.env}:/app/.app_envs/development/.env:ro
+       - ${APP_ENVIRONMENT_DIR:-./.app_envs/development}:/app/.app_envs/development:ro
     ports:
           - "${APP_EXTERNAL_PORT}:${APP_INTERNAL_PORT}"
     env_file:
