@@ -1,6 +1,5 @@
 from celery import Celery
 import os
-import combined_crawl
 import requests
 import asyncio
 from playwright.async_api import async_playwright
