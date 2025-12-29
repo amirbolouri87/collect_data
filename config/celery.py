@@ -2,14 +2,32 @@ from celery import Celery
 import os
 import requests
 import asyncio
+import json
 from playwright.async_api import async_playwright
 from django.conf import settings
+
+async def insert_data(data):
+    import requests
+    from elasticsearch import Elasticsearch
+
+    es = Elasticsearch("http://192.168.88.229:9200")
+
+    # doc = json.loads(data)
+    await asyncio.to_thread(
+        es.index,
+        index="text_data",
+        document={"content": data}
+    )
+    print('inserted . ')
 
 async def handle_response(response):
     url = response.url
     if "ajax.json" in url:
         try:
             r = requests.get(url)
+            #print(r.text)
+            await insert_data(r.text)
+
         except Exception as e:
             print("Error fetching URL:", e)
 
@@ -44,7 +62,7 @@ app = Celery(
 
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
-    sender.add_periodic_task(40.0, scrape_tgju_table.s(), name='scrape_tgju_table')
+    sender.add_periodic_task(30.0, scrape_tgju_table.s(), name='scrape_tgju_table')
 
 @app.task
 def scrape_tgju_table():
