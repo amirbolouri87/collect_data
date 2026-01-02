@@ -1,0 +1,42 @@
+ARG DOCKER_REPO_URL=docker.io
+ARG BASE_IMAGE=python
+ARG BASE_TAG=3.12-slim
+
+FROM ${DOCKER_REPO_URL}/${BASE_IMAGE}:${BASE_TAG} AS app
+
+ARG ENVIRONMENT=production
+
+USER root
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH="/home/appuser/.local/bin:${PATH}"
+
+WORKDIR /app
+
+# نصب dependencies
+COPY requirements/ requirements/
+RUN pip install --no-cache-dir -r requirements/${ENVIRONMENT}.txt
+
+# نصب Playwright و مرورگرها (در صورت نیاز)
+RUN apt-get update && apt-get install -y && apt-get install -y xvfb\
+    wget gnupg libnss3 libatk-bridge2.0-0 libgtk-3-0 \
+    libxss1 libasound2 libgbm1 libxshmfence1 libdrm2 libxrandr2 \
+    libxcomposite1 libxdamage1 libpango-1.0-0 libcairo2 libatspi2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+RUN pip install playwright
+RUN playwright install
+
+# کپی کل پروژه
+COPY . .
+
+# اضافه کردن user و مجوزه
+
+# Healthcheck ساده
+HEALTHCHECK --interval=30s --timeout=10s \
+    CMD python -c "print('healthy')" || exit 1
+
+# USER appuser
+
+# CMD اصلی اپ هنوز هست، ولی در docker-compose برای Celery override می‌کنیم
+CMD ["python", "/app/entrypoint.py"]

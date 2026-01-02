@@ -1,0 +1,88 @@
+version: "3.9"
+
+services:
+  celery-worker:
+    build:
+      context: .
+      dockerfile: CeleryDockerfile
+      args:
+        ENVIRONMENT: ${ENVIRONMENT:-development}
+        DOCKER_REPO_URL: ${DOCKER_REPO_URL:-docker.io}
+
+    image: external_wrapper_celery_${ENVIRONMENT:-development}:${DOCKER_TAG:-latest}
+    container_name: external_wrapper_celery_worker
+
+    entrypoint: [ ]
+
+    environment:
+      PYTHONUNBUFFERED: "1"
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DJANGO_SETTINGS_MODULE: config.settings.environments.${ENVIRONMENT:-development}
+
+    env_file:
+      - ${APP_ENVIRONMENT_VARIABLES_PATH:-.app_envs/development}/.env
+
+    volumes:
+      - logs:/app/logs
+      - ${APP_ENVIRONMENT_VARIABLES_PATH:-.app_envs/development}:/app/.app_envs/${ENVIRONMENT:-development}:ro
+
+    command: celery -A config worker -l info
+    restart: always
+  celery-beat-worker:
+    build:
+      context: .
+      dockerfile: CeleryDockerfile
+      args:
+        ENVIRONMENT: ${ENVIRONMENT:-development}
+        DOCKER_REPO_URL: ${DOCKER_REPO_URL:-docker.io}
+
+    image: external_wrapper_celery_${ENVIRONMENT:-development}:${DOCKER_TAG:-latest}
+    container_name: external_wrapper_celery_beat
+
+    entrypoint: [ ]
+
+    environment:
+      PYTHONUNBUFFERED: "1"
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DJANGO_SETTINGS_MODULE: config.settings.environments.${ENVIRONMENT:-development}
+
+    env_file:
+      - ${APP_ENVIRONMENT_VARIABLES_PATH:-.app_envs/development}/.env
+
+    volumes:
+      - logs:/app/logs
+      - ${APP_ENVIRONMENT_VARIABLES_PATH:-.app_envs/development}:/app/.app_envs/${ENVIRONMENT:-development}:ro
+
+    command: celery -A config beat --loglevel=info
+    restart: always
+  celer-flower:
+    build:
+      context: .
+      dockerfile: CeleryDockerfile
+      args:
+        ENVIRONMENT: ${ENVIRONMENT:-development}
+        DOCKER_REPO_URL: ${DOCKER_REPO_URL:-docker.io}
+
+    image: external_wrapper_celery_${ENVIRONMENT:-development}:${DOCKER_TAG:-latest}
+    container_name: external_wrapper_celery_flower
+
+    entrypoint: [ ]
+
+    environment:
+      PYTHONUNBUFFERED: "1"
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DJANGO_SETTINGS_MODULE: config.settings.environments.${ENVIRONMENT:-development}
+
+    env_file:
+      - ${APP_ENVIRONMENT_VARIABLES_PATH:-.app_envs/development}/.env
+
+    volumes:
+      - logs:/app/logs
+      - ${APP_ENVIRONMENT_VARIABLES_PATH:-.app_envs/development}:/app/.app_envs/${ENVIRONMENT:-development}:ro
+
+    command: celery -A config flower --port=5555
+    restart: always
+    ports:
+      - "5555:5555"
+volumes:
+  logs:

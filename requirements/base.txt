@@ -14,4 +14,6 @@ psycopg2-binary==2.9.11
 playwright==1.56.0
 pytest-playwright==0.7.2
 celery==5.6.0
+elasticsearch==8.10.0
+flower==2.0.1
 
